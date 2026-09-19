@@ -2,6 +2,16 @@
 
 这是 `ai-ticket-platform` 的独立 FastAPI AI 能力服务。它负责模型调用、结构化输出、回复草稿、受控只读 Agent、轻量 RAG 和 MCP 演示；Java 仍然是用户认证、授权、工单数据、事务和业务决策的可信边界。Python 不连接 Java MySQL，也不直接修改 `tickets`。
 
+本仓库的定位是 AI capability service，而不是第二套业务后端：浏览器不直接访问 Python，Java 通过受控内部 HTTP 调用本服务。
+
+## 技术栈
+
+- Python 3.11+
+- FastAPI、Uvicorn、Pydantic Settings
+- OpenAI-compatible provider adapter + deterministic fake provider
+- 官方 MCP Python SDK
+- pytest、HTTPX TestClient
+
 ## 运行
 
 需要 Python 3.11+：
@@ -70,3 +80,16 @@ pytest
 ```
 
 测试覆盖 health、内部令牌、结构化分析、回复草稿、provider invalid-output 映射、RAG top-k、Agent 工具边界和 MCP HTTP 合同。真实外部 LLM smoke test 只有在设置 `AI_PROVIDER_API_KEY` 后才执行；默认 fake provider 不需要凭证。
+
+当前真实结果：`12 passed`。这些测试覆盖服务合同和关键边界，不代表生产环境压力测试或真实外部模型的成功率。
+
+## Related Repositories
+
+- [Java Core Backend](https://github.com/zc2777038647/ai-ticket-platform)：认证、授权、MySQL、Redis、工单状态和业务决策的可信边界。
+- [Vue Demo Console](https://github.com/zc2777038647/ai-ticket-web)：本地浏览器和面试展示界面，浏览器只调用 Java API。
+
+## Known Limitations
+
+- 当前默认 provider 是确定性的 fake provider；真实 OpenAI-compatible LLM smoke test 只有在通过环境变量提供有效凭证时才执行。
+- 本项目没有生产部署、压力测试或高并发性能结论，也没有数据库写权限。
+- Python 配置修改需要重启进程；没有引入动态配置中心。
